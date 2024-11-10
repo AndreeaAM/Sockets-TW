@@ -72,6 +72,9 @@ public class ClientThread extends Thread {
             case MESSAGE_INDIVIDUAL -> {
                 UserManagement.INSTANCE.sendMessage(receivedPacket);
             }
+            case MESSAGE_ROOM -> {
+                UserManagement.INSTANCE.sendMessageToRoom(receivedPacket);
+            }
             default -> {
                 responsePacket = Packet.builder().message("Invalid command").build();
             }

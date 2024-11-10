@@ -49,6 +49,12 @@ public class Client {
                             String message = "%s : %s ".formatted(packet.getUser().getNickname(), packet.getMessage());
                             System.out.println(message);
                         }
+
+                        if(packet.getCommand().equals(Command.MESSAGE_ROOM)){
+                            String message = "%s : %s ".formatted(packet.getUser().getNickname(), packet.getMessage());
+                            System.out.println(message);
+                        }
+
                         this.notify(); // Notify the waiting thread that a server response was received
                     }
                 }
@@ -90,6 +96,7 @@ public class Client {
                 switch (option) {
                     case "1", "message all" -> messageAll(scanner);
                     case "2", "message individual" -> messageIndividual(scanner);
+                    case "3", "message room" -> messageRoom(scanner);
                     case "exit" -> exit();
                     default -> System.out.println("Invalid option. Please try again.");
                 }
@@ -113,6 +120,7 @@ public class Client {
                 Messaging Options:
                 1. Message All (Public Chat)
                 2. Message Individual
+                3. Message Room
                 Type 'exit' to quit.
                 Choose: """);
     }
@@ -192,6 +200,29 @@ public class Client {
             throw new RuntimeException(e);
         }
     }
+
+    private void messageRoom(Scanner scanner) {
+        System.out.print("Enter room name: ");
+        String roomName = scanner.nextLine();
+        System.out.print("Enter message: ");
+        String message = scanner.nextLine();
+
+        // Include room name in the message content
+        String formattedMessage = "%s:%s".formatted(roomName, message);
+
+        try {
+            out.writeObject(Packet
+                    .builder()
+                    .message(formattedMessage)  // Send the formatted message
+                    .user(currentUser)  // Use the retained User (principal)
+                    .command(Command.MESSAGE_ROOM)
+                    .build());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
 
     private synchronized void waitForServerResponse() {
