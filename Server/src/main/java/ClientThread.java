@@ -70,7 +70,7 @@ public class ClientThread extends Thread {
                 UserManagement.INSTANCE.broadcastMessage(receivedPacket);
             }
             case MESSAGE_INDIVIDUAL -> {
-                // Handle individual messaging (not implemented)
+                UserManagement.INSTANCE.sendMessage(receivedPacket);
             }
             default -> {
                 responsePacket = Packet.builder().message("Invalid command").build();

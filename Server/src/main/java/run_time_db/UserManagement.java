@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Scanner;
 
 public enum UserManagement {
     INSTANCE;
@@ -62,4 +63,35 @@ public enum UserManagement {
             }
         }
     }
+
+    public void sendMessage(Packet packet) {
+        String recipient = packet.getMessage().split(":")[0];
+        String message = packet.getMessage().replaceFirst(recipient + ":", "");
+
+        Optional<User> optionalRecipient = this.users
+                .stream()
+                .filter(user -> user.getNickname().equals(recipient))
+                .findFirst();
+
+        if (optionalRecipient.isPresent()) {
+            User recipientUser = optionalRecipient.get();
+
+            Packet messagePacket = Packet.builder()
+                    .user(packet.getUser())
+                    .message(message)
+                    .command(Command.MESSAGE_INDIVIDUAL)
+                    .build();
+
+            try {
+                ObjectOutputStream recipientOutStream = recipientUser.getOutStream();
+                if (recipientOutStream != null) {
+                    recipientOutStream.writeObject(messagePacket);  // Use the recipient's existing stream
+                    recipientOutStream.flush();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error sending message to user: " + recipient, e);
+            }
+        }
+    }
+
 }

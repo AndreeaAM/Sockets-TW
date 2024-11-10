@@ -44,6 +44,11 @@ public class Client {
                             String message = "%s : %s ".formatted(packet.getUser().getNickname(), packet.getMessage());
                             System.out.println(message);
                         }
+
+                        if(packet.getCommand().equals(Command.MESSAGE_INDIVIDUAL)){
+                            String message = "%s : %s ".formatted(packet.getUser().getNickname(), packet.getMessage());
+                            System.out.println(message);
+                        }
                         this.notify(); // Notify the waiting thread that a server response was received
                     }
                 }
@@ -173,10 +178,13 @@ public class Client {
         System.out.print("Enter message: ");
         String message = scanner.nextLine();
 
+        // Include recipient's username in the message content
+        String formattedMessage = "%s:%s".formatted(recipient, message);
+
         try {
             out.writeObject(Packet
                     .builder()
-                    .message(message)
+                    .message(formattedMessage)  // Send the formatted message
                     .user(currentUser)  // Use the retained User (principal)
                     .command(Command.MESSAGE_INDIVIDUAL)
                     .build());
@@ -184,6 +192,7 @@ public class Client {
             throw new RuntimeException(e);
         }
     }
+
 
     private synchronized void waitForServerResponse() {
         try {
